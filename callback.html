@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authorization - Lomasviral</title>
+<style>
+  body { font: 16px/1.6 system-ui, sans-serif; max-width: 720px; margin: 3rem auto; padding: 0 1rem; color: #1a1a1a; }
+  code, textarea { font: 14px/1.4 ui-monospace, monospace; }
+  textarea { width: 100%; height: 5rem; }
+  .ok { color: #137333; } .err { color: #b3261e; }
+  a { color: #0b57d0; }
+</style>
+</head>
+<body>
+<h1>Lomasviral authorization</h1>
+<p id="status">Checking the response from TikTok...</p>
+<div id="result" hidden>
+  <p>Copy this authorization code into the Lomasviral data notebook. It is single-use and expires within minutes.</p>
+  <textarea id="code" readonly></textarea>
+  <p><button id="copy" type="button">Copy code</button></p>
+</div>
+<p><a href="index.html">Back</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Service</a></p>
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var status = document.getElementById("status");
+  var expected = null;
+  try { expected = sessionStorage.getItem("tt_state"); } catch (e) {}
+
+  if (params.get("error")) {
+    status.className = "err";
+    status.textContent = "TikTok returned an error: " + params.get("error") +
+      (params.get("error_description") ? " - " + params.get("error_description") : "");
+  } else if (!params.get("code")) {
+    status.textContent = "No authorization code found. Start from the home page and press Connect TikTok.";
+  } else if (!expected || params.get("state") !== expected) {
+    status.className = "err";
+    status.textContent = "The state value does not match this browser session, so the code was not shown. Start again from the home page.";
+  } else {
+    try { sessionStorage.removeItem("tt_state"); } catch (e) {}
+    status.className = "ok";
+    status.textContent = "Authorization granted for: " + (params.get("scopes") || "the requested scopes");
+    document.getElementById("code").value = params.get("code");
+    document.getElementById("result").hidden = false;
+    document.getElementById("copy").addEventListener("click", function () {
+      var el = document.getElementById("code");
+      el.select();
+      if (navigator.clipboard) { navigator.clipboard.writeText(el.value); } else { document.execCommand("copy"); }
+    });
+  }
+</script>
+</body>
+</html>
