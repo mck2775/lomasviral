@@ -22,7 +22,7 @@
 <script>
   // client_key is public by design; the client secret never appears on this page.
   var CLIENT_KEY = "sbaw2sqnm20hwn1t14";
-  var SCOPES = "user.info.basic,user.info.profile,user.info.stats,video.list";
+  var SCOPES = "user.info.profile,user.info.stats,video.list,video.upload,video.publish";
   var REDIRECT_URI = "https://mck2775.github.io/lomasviral/callback.html";
   document.getElementById("connect").addEventListener("click", function () {
     var bytes = new Uint8Array(16);
