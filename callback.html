@@ -23,23 +23,23 @@
 <p><a href="index.html">Back</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Service</a></p>
 <script>
   var params = new URLSearchParams(window.location.search);
-  var status = document.getElementById("status");
+  var msg = document.getElementById("status");
   var expected = null;
   try { expected = sessionStorage.getItem("tt_state"); } catch (e) {}
 
   if (params.get("error")) {
-    status.className = "err";
-    status.textContent = "TikTok returned an error: " + params.get("error") +
+    msg.className = "err";
+    msg.textContent = "TikTok returned an error: " + params.get("error") +
       (params.get("error_description") ? " - " + params.get("error_description") : "");
   } else if (!params.get("code")) {
-    status.textContent = "No authorization code found. Start from the home page and press Connect TikTok.";
+    msg.textContent = "No authorization code found. Start from the home page and press Connect TikTok.";
   } else if (!expected || params.get("state") !== expected) {
-    status.className = "err";
-    status.textContent = "The state value does not match this browser session, so the code was not shown. Start again from the home page.";
+    msg.className = "err";
+    msg.textContent = "The state value does not match this browser session, so the code was not shown. Start again from the home page.";
   } else {
     try { sessionStorage.removeItem("tt_state"); } catch (e) {}
-    status.className = "ok";
-    status.textContent = "Authorization granted for: " + (params.get("scopes") || "the requested scopes");
+    msg.className = "ok";
+    msg.textContent = "Authorization granted for: " + (params.get("scopes") || "the requested scopes");
     document.getElementById("code").value = params.get("code");
     document.getElementById("result").hidden = false;
     document.getElementById("copy").addEventListener("click", function () {
