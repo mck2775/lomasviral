@@ -18,6 +18,25 @@
   <li>upload videos to the same account through the TikTok Content Posting API, initiated by the account owner.</li>
 </ul>
 <p>The tool is not offered to the general public and does not collect data from other TikTok users through the TikTok API.</p>
+<p><button id="connect" type="button" style="font:inherit;padding:.6rem 1.2rem;border:0;border-radius:6px;background:#fe2c55;color:#fff;cursor:pointer">Connect TikTok</button></p>
+<script>
+  // client_key is public by design; the client secret never appears on this page.
+  var CLIENT_KEY = "awnwhn71zjrgfj4n";
+  var SCOPES = "user.info.basic,user.info.profile,user.info.stats,video.list";
+  var REDIRECT_URI = "https://mck2775.github.io/lomasviral/callback.html";
+  document.getElementById("connect").addEventListener("click", function () {
+    var bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    var state = Array.prototype.map.call(bytes, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+    try { sessionStorage.setItem("tt_state", state); } catch (e) {}
+    window.location.href = "https://www.tiktok.com/v2/auth/authorize/" +
+      "?client_key=" + encodeURIComponent(CLIENT_KEY) +
+      "&scope=" + encodeURIComponent(SCOPES) +
+      "&response_type=code" +
+      "&redirect_uri=" + encodeURIComponent(REDIRECT_URI) +
+      "&state=" + state;
+  });
+</script>
 <p>Operator: Jorge Lopez &middot; Contact: <a href="mailto:[mck27752@gmail.com]">[mck27752@gmail.com]</a></p>
 <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Service</a></p>
 </body>
