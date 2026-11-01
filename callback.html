@@ -39,17 +39,13 @@
   } else if (!expected || params.get("state") !== expected) {
     msg.className = "err";
     msg.textContent = "The state value does not match this browser session, so the code was not shown. Start again from the home page.";
-  } else {
+    } else {
     try { sessionStorage.removeItem("tt_state"); } catch (e) {}
     msg.className = "ok";
-    msg.textContent = "Authorization granted for: " + (params.get("scopes") || "the requested scopes");
-    document.getElementById("code").value = params.get("code");
-    document.getElementById("result").hidden = false;
-    document.getElementById("copy").addEventListener("click", function () {
-      var el = document.getElementById("code");
-      el.select();
-      if (navigator.clipboard) { navigator.clipboard.writeText(el.value); } else { document.execCommand("copy"); }
-    });
+    msg.textContent = "Autorización recibida. Conectando con Lomasviral...";
+    var target = "https://lomasviral-publish-7474644109457991.aws.databricksapps.com/callback?code=" +
+      encodeURIComponent(params.get("code"));
+    window.location.replace(target);
   }
 </script>
 </body>
