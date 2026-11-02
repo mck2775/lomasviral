@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lomasviral - Facebook Page metrics</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;max-width:720px;margin:3rem auto;padding:0 1rem;color:#1a1a1a}
+button{font:inherit;padding:.6rem 1rem;border:0;border-radius:6px;background:#1877f2;color:#fff;cursor:pointer}
+button:disabled{opacity:.5}
+.card{border:1px solid #ddd;border-radius:8px;padding:1rem;margin:1rem 0}
+code{background:#f3f3f3;padding:.1rem .3rem;border-radius:4px}
+</style>
+</head>
+<body>
+<h1>Lomasviral</h1>
+<p>Lomasviral is a personal tool. The operator signs in with Facebook to measure the performance of their own Facebook Page content (views and engagement) and to compare it with their YouTube and TikTok results.</p>
+
+<div class="card">
+  <p><strong>Step 1.</strong> Sign in with Facebook and grant the permissions below.</p>
+  <button id="login">Log in with Facebook</button>
+  <ul>
+    <li><code>pages_show_list</code>: list the Pages you manage.</li>
+    <li><code>pages_read_engagement</code>: read your Page's engagement.</li>
+    <li><code>read_insights</code>: read your Page's insights (views).</li>
+    <li><code>pages_manage_posts</code> and <code>pages_read_user_content</code>: publish and read your own Reels.</li>
+  </ul>
+</div>
+
+<div class="card" id="paginas" hidden>
+  <p><strong>Step 2.</strong> Choose the Page to measure.</p>
+  <ul id="lista"></ul>
+</div>
+
+<div class="card" id="metricas" hidden>
+  <p><strong>Step 3.</strong> Page metrics for <span id="nombre"></span>:</p>
+  <pre id="salida" style="white-space:pre-wrap"></pre>
+</div>
+
+<p><a href="privacy-meta.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
+
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+<script>
+const APP_ID = "534115797012427";
+const VERSION = "v26.0";
+const SCOPES = "pages_show_list,pages_read_engagement,read_insights,pages_manage_posts,pages_read_user_content";
+
+window.fbAsyncInit = function () {
+  FB.init({ appId: APP_ID, cookie: true, xfbml: false, version: VERSION });
+};
+
+const botonLogin = document.getElementById("login");
+botonLogin.addEventListener("click", () => {
+  FB.login((resp) => {
+    if (!resp.authResponse) { alert("Login cancelled."); return; }
+    cargarPaginas();
+  }, { scope: SCOPES });
+});
+
+function cargarPaginas() {
+  FB.api("/me/accounts", { fields: "name,id,access_token" }, (resp) => {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+    (resp.data || []).forEach((p) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.textContent = "Measure " + p.name;
+      b.addEventListener("click", () => verMetricas(p));
+      li.appendChild(b);
+      lista.appendChild(li);
+    });
+    document.getElementById("paginas").hidden = false;
+  });
+}
+
+function verMetricas(pagina) {
+  // The page access token is used only in the browser session to call the Graph API.
+  // It is never displayed or stored.
+  FB.api(`/${pagina.id}`, { fields: "name,fan_count", access_token: pagina.access_token }, (info) => {
+    document.getElementById("nombre").textContent = info.name || pagina.name;
+    FB.api(`/${pagina.id}/insights`, { metric: "page_views_total", period: "day", access_token: pagina.access_token }, (ins) => {
+      const lineas = [`Followers: ${info.fan_count ?? "not available"}`];
+      const datos = (ins.data || [])[0];
+      if (datos && datos.values) {
+        lineas.push(`Page views (latest day): ${datos.values[datos.values.length - 1].value}`);
+      } else {
+        lineas.push("Page views: not available for this period.");
+      }
+      document.getElementById("salida").textContent = lineas.join("\n");
+      document.getElementById("metricas").hidden = false;
+    });
+  });
+}
+</script>
+</body>
+</html>
